@@ -39,7 +39,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;ma
 button{font-family:inherit;cursor:pointer}
 .btn{border:1px solid var(--line);background:var(--ivory);color:var(--ink);padding:9px 16px;border-radius:12px;font-size:14px;transition:.2s}
 .btn:hover{border-color:var(--gold);box-shadow:var(--shadow)}
-.btn.gold{background:linear-gradient(135deg, #568993, #5773f0);color:#fff;border:none;font-weight:500;letter-spacing:.02em;box-shadow:0 8px 18px -8px rgba(240,87,123,.55)}
+.btn.gold{background:linear-gradient(135deg, #568993, #5773f0);color:#fff;border:none;font-weight:500;letter-spacing:.02em;box-shadow:0 8px 18px -8px rgba(87,115,240,.45)}
 .btn.gold:hover{filter:brightness(1.06)}
 .btn.sm{padding:6px 12px;font-size:12.5px}
 .btn[disabled]{opacity:.55;cursor:wait}
@@ -108,8 +108,14 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,
 .tx.in .amt{color:var(--green-d)} .tx.out .amt{color:var(--rose-d)}
 .tx .bal{font-size:12px;color:var(--muted);margin-top:2px;text-align:right}
 .tx .side{text-align:right}
-.del{border:none;background:transparent;color:#d9c4c0;font-size:12px;margin-top:2px;padding:2px 0}
-.del:hover{color:var(--rose-d)}
+.del,.edit{border:none;background:transparent;font-size:12px;padding:2px 0}
+.del{color:#d9c4c0}.del:hover{color:var(--rose-d)}
+.edit{color:#b3a6ad}.edit:hover{color:#5773f0}
+.acts{display:flex;gap:12px;justify-content:flex-end;margin-top:2px}
+.tx.editing-row{background:#f1f4ff;border-radius:12px}
+.editbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#eef2ff;border:1px solid #cdd8ff;color:#3f56c9;border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:14px}
+.editbar button{border:none;background:transparent;color:#3f56c9;font-size:13px;text-decoration:underline;padding:0}
+.card.editing{border-color:#b6c4ff;box-shadow:0 10px 30px -12px rgba(87,115,240,.35)}
 .empty{text-align:center;color:var(--muted);padding:26px 10px 30px;font-size:14px}
 .empty .big{width:110px;height:92px;margin:0 auto 6px}
 .empty .big svg{width:100%;height:100%}
@@ -182,8 +188,9 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,
     </div>
 
     <div class="grid">
-      <div class="card">
-        <h2>เพิ่มรายการ</h2>
+      <div class="card" id="formCard">
+        <h2 id="formTitle">เพิ่มรายการ</h2>
+        <div class="editbar hidden" id="editBar"><span>✏️ กำลังแก้ไขรายการ</span><button type="button" id="cancelEdit">ยกเลิก</button></div>
         <div class="seg">
           <button type="button" class="out active" data-type="ใช้จ่าย" id="segOut">− จ่ายไป</button>
           <button type="button" class="in" data-type="เติมเงิน" id="segIn">+ ให้เงินเพิ่ม</button>
@@ -227,7 +234,7 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
-import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,getFirestore,collection,addDoc,updateDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 /* ค่า FIREBASE_CONFIG และ OWNER_NAME อยู่ในไฟล์ config.js (โฟลเดอร์เดียวกับหน้านี้) */
 let FIREBASE_CONFIG=null, OWNER_NAME='', cfgError='';
@@ -240,7 +247,7 @@ try{
 const $=s=>document.querySelector(s);
 const IN='เติมเงิน', OUT='ใช้จ่าย', COL='ledger';
 const LS_OPEN='allowanceLedgerAuto.histOpen';
-let txs=[], curType=OUT, filter='all', unsub=null, auth=null, db=null, store=null, shown=8, lastMood='';
+let txs=[], curType=OUT, filter='all', unsub=null, auth=null, db=null, store=null, shown=8, lastMood='', editingId=null;
 
 const fmt=n=>new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -250,7 +257,7 @@ const monthLabel=k=>{const d=new Date(k+'-01T00:00:00');return isNaN(d)?k:d.toLo
 function toast(msg,err){const t=$('#toast');t.textContent=msg;t.className='toast show'+(err?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='toast',3200)}
 function show(v){['missingView','signinView','mainView'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==v))}
 function pill(txt,cls){const p=$('#statusPill');p.textContent=txt;p.className='pill'+(cls?' '+cls:'')}
-function applyName(){$('#title').textContent='สมุดบัญชีเงินฝาก'+(OWNER_NAME?' · '+OWNER_NAME:'');document.title='บัญชี '+(OWNER_NAME||'เงินฝาก')}
+function applyName(){const t='สมุดบัญชีเงินฝาก'+OWNER_NAME;$('#title').textContent=t;document.title=t}
 
 /* ---------- Mascot: หมูออมสินตัวน้อย (วาดเอง) เปลี่ยนอารมณ์ตามเงินคงเหลือ ---------- */
 function mascot(mood){
@@ -318,10 +325,11 @@ function makeStore(){
   return {
     subscribe(cb,onErr){
       return onSnapshot(query(collection(db,COL),orderBy('date')),snap=>{
-        cb(snap.docs.map(d=>{const v=d.data();return{id:d.id,date:v.date||'',type:v.type===IN?IN:OUT,desc:v.desc||'',amount:Number(v.amount)||0,note:v.note||'',ts:v.createdAt?.toMillis?.()??Date.now()}}));
+        cb(snap.docs.map(d=>{const v=d.data();return{id:d.id,date:v.date||'',type:v.type===IN?IN:OUT,desc:v.desc||'',amount:Number(v.amount)||0,note:v.note||'',ts:v.createdAt?.toMillis?.()??Date.now(),edited:!!v.updatedAt}}));
       },onErr);
     },
     add(t){return addDoc(collection(db,COL),{...t,createdAt:serverTimestamp(),by:auth.currentUser?.email||''})},
+    update(id,t){return updateDoc(doc(db,COL,id),{...t,updatedAt:serverTimestamp(),updatedBy:auth.currentUser?.email||''})},
     remove(t){return deleteDoc(doc(db,COL,t.id))}
   };
 }
@@ -362,10 +370,10 @@ function render(){
     const k=t.date.slice(0,7);
     if(k!==lastKey){lastKey=k;const m=months[k]||{in:0,out:0};
       html+=`<div class="month"><span>${esc(monthLabel(k))}</span><span>จ่าย ${fmt(m.out)}${m.in?' · ให้เพิ่ม '+fmt(m.in):''}</span></div>`}
-    html+=`<div class="tx ${t.type===IN?'in':'out'}">
+    html+=`<div class="tx ${t.type===IN?'in':'out'}${t.id===editingId?' editing-row':''}">
       <div class="ico">${iconFor(t)}</div>
-      <div><div class="t">${esc(t.desc)}</div><div class="m">${fmtDate(t.date)}${t.note?' · '+esc(t.note):''}</div></div>
-      <div class="side"><div class="amt">${t.type===IN?'+':'−'}${fmt(t.amount)}</div><div class="bal">คงเหลือ ${fmt(t.bal)}</div><button class="del" data-id="${esc(t.id)}">ลบ</button></div>
+      <div><div class="t">${esc(t.desc)}</div><div class="m">${fmtDate(t.date)}${t.note?' · '+esc(t.note):''}${t.edited?' · แก้ไขแล้ว':''}</div></div>
+      <div class="side"><div class="amt">${t.type===IN?'+':'−'}${fmt(t.amount)}</div><div class="bal">คงเหลือ ${fmt(t.bal)}</div><div class="acts"><button class="edit" data-id="${esc(t.id)}">แก้ไข</button><button class="del" data-id="${esc(t.id)}">ลบ</button></div></div>
     </div>`;
   });
   $('#list').innerHTML=html||`<div class="empty"><div class="big">${mascot('ok')}</div>ยังไม่มีรายการ</div>`;
@@ -391,14 +399,32 @@ $('#histHead').onclick=()=>setOpen($('#histCard').classList.contains('collapsed'
 $('#moreBtn').onclick=()=>{shown+=10;render()};
 
 /* ---------- Events ---------- */
-document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
-  curType=b.dataset.type;
-  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('active',x===b));
+function updateBtnText(){$('#addBtn').textContent=editingId?'บันทึกการแก้ไข':(curType===OUT?'บันทึกรายจ่าย':'บันทึกเงินที่ให้เพิ่ม')}
+function setType(type){
+  curType=type;
+  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('active',x.dataset.type===type));
   $('#lblDesc').textContent=curType===OUT?'จ่ายค่าอะไร / ซื้ออะไร':'เงินที่ให้เพิ่ม (เหตุผล/ที่มา)';
   $('#fDesc').placeholder=curType===OUT?'เช่น ค่าไฟ, ของใช้ในบ้าน':'เช่น โอนเพิ่มเดือนพฤศจิกายน';
-  $('#addBtn').textContent=curType===OUT?'บันทึกรายจ่าย':'บันทึกเงินที่ให้เพิ่ม';
-  renderQuick();render();
-});
+  updateBtnText();renderQuick();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{setType(b.dataset.type);render()});
+
+/* ---------- แก้ไขรายการ ---------- */
+function startEdit(t){
+  editingId=t.id;setType(t.type);
+  $('#fDesc').value=t.desc;$('#fAmt').value=t.amount;$('#fDate').value=t.date;$('#fNote').value=t.note;
+  $('#editBar').classList.remove('hidden');$('#formCard').classList.add('editing');$('#formTitle').textContent='แก้ไขรายการ';
+  updateBtnText();render();
+  $('#formCard').scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>$('#fAmt').focus({preventScroll:true}),350);
+}
+function endEdit(){
+  editingId=null;
+  $('#fDesc').value='';$('#fAmt').value='';$('#fNote').value='';$('#fDate').value=todayStr();
+  $('#editBar').classList.add('hidden');$('#formCard').classList.remove('editing');$('#formTitle').textContent='เพิ่มรายการ';
+  updateBtnText();render();
+}
+$('#cancelEdit').onclick=endEdit;
 document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
   filter=c.dataset.f;shown=8;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===c));render()});
 $('#q').oninput=()=>{shown=8;render()};
@@ -411,20 +437,24 @@ $('#form').onsubmit=async e=>{
   e.preventDefault();
   const amt=parseFloat($('#fAmt').value);
   if(!(amt>0)){toast('กรอกจำนวนเงินให้ถูกต้อง',true);return}
-  const btn=$('#addBtn'),old=btn.textContent;
+  const data={date:$('#fDate').value,type:curType,desc:$('#fDesc').value.trim(),amount:Math.round(amt*100)/100,note:$('#fNote').value.trim()};
+  const btn=$('#addBtn'),wasEdit=editingId;
   btn.disabled=true;btn.innerHTML='<span class="spin"></span>กำลังบันทึก';
   try{
-    await store.add({date:$('#fDate').value,type:curType,desc:$('#fDesc').value.trim(),amount:Math.round(amt*100)/100,note:$('#fNote').value.trim()});
-    $('#fDesc').value='';$('#fAmt').value='';$('#fNote').value='';
-    toast('บันทึกแล้ว ✓');
-  }catch(err){toast(errMsg(err),true)}
-  finally{btn.disabled=false;btn.textContent=old}
+    if(wasEdit){await store.update(wasEdit,data);toast('แก้ไขแล้ว ✓');endEdit()}
+    else{await store.add(data);$('#fDesc').value='';$('#fAmt').value='';$('#fNote').value='';toast('บันทึกแล้ว ✓')}
+  }catch(err){
+    toast(wasEdit&&err?.code==='permission-denied'?'ไม่มีสิทธิ์แก้ไขรายการ (ระบบยังไม่อนุญาตให้แก้ไข)':errMsg(err),true);
+  }
+  finally{btn.disabled=false;updateBtnText()}
 };
 $('#list').onclick=async e=>{
+  const eb=e.target.closest('.edit');
+  if(eb){const t=txs.find(x=>x.id===eb.dataset.id);if(t)startEdit(t);return}
   const b=e.target.closest('.del');if(!b)return;
   const t=txs.find(x=>x.id===b.dataset.id);if(!t)return;
   if(!confirm('ลบรายการ “'+t.desc+'” จำนวน '+fmt(t.amount)+' บาท ?'))return;
-  try{await store.remove(t);toast('ลบแล้ว')}catch(err){toast(errMsg(err),true)}
+  try{await store.remove(t);toast('ลบแล้ว');if(editingId===t.id)endEdit()}catch(err){toast(errMsg(err),true)}
 };
 $('#signoutBtn').onclick=()=>signOut(auth);
 $('#signinBtn').onclick=async()=>{
