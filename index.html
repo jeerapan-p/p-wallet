@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>สมุดบัญชีเงินฝาก</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='4%200%20112%2098'%3E%3Crect%20x='34'%20y='80'%20width='11'%20height='13'%20rx='5'%20fill='%23ffa6bd'/%3E%3Crect%20x='68'%20y='80'%20width='11'%20height='13'%20rx='5'%20fill='%23ffa6bd'/%3E%3Cpath%20d='M48%2031%20L45%2015%20L62%2028%20Z'%20fill='%23ffa6bd'/%3E%3Cpath%20d='M60%2031%20L65%2015%20L78%2031%20Z'%20fill='%23ffa6bd'/%3E%3Cpath%20d='M21%2056%20q-11%20-3%20-9%20-11%20q2%20-5%208%20-2'%20stroke='%23ff8fab'%20stroke-width='3.2'%20fill='none'%20stroke-linecap='round'/%3E%3Cellipse%20cx='58'%20cy='58'%20rx='38'%20ry='29'%20fill='%23ffc6d4'%20stroke='%23ff9db6'%20stroke-width='1.6'/%3E%3Crect%20x='46'%20y='31'%20width='22'%20height='4.2'%20rx='2.1'%20fill='%23e0507a'/%3E%3Ccircle%20cx='57'%20cy='13'%20r='10'%20fill='%23ffd966'%20stroke='%23e0a020'%20stroke-width='1.8'/%3E%3Ccircle%20cx='57'%20cy='13'%20r='5'%20fill='none'%20stroke='%23e0a020'%20stroke-width='1.6'/%3E%3Ccircle%20cx='77'%20cy='62'%20r='5'%20fill='%23ff7d98'%20opacity='.45'/%3E%3Cellipse%20cx='92'%20cy='58'%20rx='9.5'%20ry='8.5'%20fill='%23ffb3c6'%20stroke='%23ff8fab'%20stroke-width='1.3'/%3E%3Ccircle%20cx='90'%20cy='57'%20r='1.8'%20fill='%23c2506c'/%3E%3Ccircle%20cx='95.2'%20cy='57'%20r='1.8'%20fill='%23c2506c'/%3E%3Cpath%20d='M67%2048%20q5%20-6%2010%200'%20stroke='%235a3a45'%20stroke-width='3'%20fill='none'%20stroke-linecap='round'/%3E%3Cpath%20d='M81%2071%20q6%206%2012%200'%20stroke='%23c2506c'%20stroke-width='2.6'%20fill='none'%20stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Sans+Thai:wght@300;400;500;600&family=Noto+Serif+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#fffaf2; --ivory:#fffefb; --blush:#ffe1e8; --rose:#ff7d98; --rose-d:#e24c70;
+  --sage:#d8f5e4; --green:#3ccb94; --green-d:#1b9a69; --gold:#f0a028; --gold-l:#ffe6b0;
+  --ink:#4a3a40; --muted:#8f7f86; --line:#f6e7d9; --shadow:0 10px 30px -12px rgba(224,120,90,.30);
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  font-family:'Noto Sans Thai',system-ui,sans-serif; color:var(--ink); font-weight:400;
+  background:
+    radial-gradient(700px 420px at 6% -5%, #ffdde6 0%, transparent 70%),
+    radial-gradient(620px 420px at 100% 0%, #d3f5e5 0%, transparent 70%),
+    radial-gradient(700px 500px at 55% 112%, #fff0b8 0%, transparent 70%),
+    radial-gradient(500px 400px at 0% 100%, #dcefff 0%, transparent 70%),
+    var(--cream);
+  min-height:100vh; padding:28px 16px 60px;
+}
+.wrap{max-width:1020px;margin:0 auto}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:14px}
+.brand .logo{width:62px;height:52px;flex:none}
+.brand small{display:block;font-family:'Cormorant Garamond',serif;letter-spacing:.28em;text-transform:uppercase;color:#e8892f;font-size:13px;font-weight:600}
+.brand h1{margin:2px 0 0;font-family:'Noto Serif Thai',serif;font-weight:500;font-size:26px;letter-spacing:.01em}
+.hdr-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-size:12px;color:var(--muted);background:rgba(255,255,255,.8);border:1px solid var(--line);padding:6px 12px;border-radius:99px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill.on{color:var(--green-d);background:var(--sage);border-color:#b7ecd0}
+.pill.bad{color:var(--rose-d);background:var(--blush);border-color:#ffc4d2}
+button{font-family:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--ivory);color:var(--ink);padding:9px 16px;border-radius:12px;font-size:14px;transition:.2s}
+.btn:hover{border-color:var(--gold);box-shadow:var(--shadow)}
+.btn.gold{background:linear-gradient(135deg, #568993, #5773f0);color:#fff;border:none;font-weight:500;letter-spacing:.02em;box-shadow:0 8px 18px -8px rgba(240,87,123,.55)}
+.btn.gold:hover{filter:brightness(1.06)}
+.btn.sm{padding:6px 12px;font-size:12.5px}
+.btn[disabled]{opacity:.55;cursor:wait}
+.card{background:rgba(255,254,251,.88);backdrop-filter:blur(6px);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);padding:24px}
+.hidden{display:none!important}
+
+.summary{display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:16px;margin-bottom:18px}
+.stat .label{font-size:12.5px;color:var(--muted);letter-spacing:.06em}
+.stat .num{font-family:'Noto Serif Thai',serif;font-size:34px;font-weight:500;margin-top:6px;letter-spacing:-.01em}
+.stat .num small{font-size:15px;color:var(--muted);margin-left:4px;font-family:'Noto Sans Thai'}
+.stat.balance{background:linear-gradient(140deg,#fff7de 0%,#ffe2bd 100%);border-color:#ffd493;position:relative;overflow:hidden;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.stat.balance::after{content:"";position:absolute;right:-50px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,170,70,.28),transparent 70%);pointer-events:none}
+.bal-text{position:relative;z-index:1;min-width:0}
+.stat.balance .num{font-size:42px;color:#d4620a}
+.stat.balance.neg .num{color:var(--rose-d)}
+.stat.in .num{color:var(--green-d)} .stat.out .num{color:var(--rose-d)}
+.mascot-box{position:relative;z-index:1;width:150px;height:125px}
+.mascot-box svg,.logo svg{width:100%;height:100%;overflow:visible}
+.mascot-box svg{animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.bar{height:8px;border-radius:9px;background:#fde3c3;margin-top:16px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffc34d,#ff8a5c);border-radius:9px;transition:width .6s}
+.hint{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.7}
+
+.grid{display:grid;grid-template-columns:350px 1fr;gap:18px;align-items:start}
+h2{font-family:'Noto Serif Thai',serif;font-weight:500;font-size:18px;margin:0 0 16px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#fdeedd;border-radius:14px;padding:4px;margin-bottom:16px}
+.seg button{border:none;background:transparent;padding:10px;border-radius:11px;font-size:14px;color:var(--muted);transition:.2s}
+.seg button.active.out{background:#fff;color:var(--rose-d);box-shadow:0 2px 8px rgba(224,120,90,.16);font-weight:500}
+.seg button.active.in{background:#fff;color:var(--green-d);box-shadow:0 2px 8px rgba(224,120,90,.16);font-weight:500}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.qchip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 13px;font-size:13px;color:var(--ink);transition:.2s}
+.qchip:hover{border-color:var(--gold);background:#fff4d6}
+label{display:block;font-size:12.5px;color:var(--muted);margin:0 0 6px;letter-spacing:.03em}
+input,select{width:100%;font-family:inherit;font-size:15px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;outline:none;transition:.2s}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,160,40,.2)}
+.field{margin-bottom:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.amount-input{font-family:'Noto Serif Thai',serif;font-size:22px}
+
+/* collapsible history */
+.hist-head{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:none;border:none;padding:0;margin:0 0 16px;text-align:left;color:inherit}
+.hist-head h2{margin:0;display:flex;align-items:center;gap:10px}
+.count{font-family:'Noto Sans Thai';font-size:12px;font-weight:500;color:#c07a0a;background:#ffeac2;border-radius:99px;padding:2px 10px}
+.chev{width:32px;height:32px;border-radius:50%;background:#fdeedd;display:grid;place-items:center;color:var(--muted);transition:transform .25s;flex:none}
+.hist-peek{display:none;font-size:13px;color:var(--muted);margin-top:10px}
+.collapsed .hist-head{margin-bottom:0}
+.collapsed .hist-body{display:none}
+.collapsed .hist-peek{display:block}
+.collapsed .chev{transform:rotate(-90deg)}
+
+.tools{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.tools input{flex:1;min-width:150px}
+.chips{display:flex;gap:6px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:8px 14px;font-size:13px;color:var(--muted)}
+.chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.list{display:flex;flex-direction:column}
+.month{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#d9822b;letter-spacing:.04em;padding:16px 4px 6px;border-bottom:1px solid var(--line);font-weight:500}
+.month:first-child{padding-top:2px}
+.tx{display:grid;grid-template-columns:42px 1fr auto;gap:12px;align-items:center;padding:13px 4px;border-bottom:1px dashed var(--line)}
+.ico{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px}
+.tx.in .ico{background:var(--sage)} .tx.out .ico{background:var(--blush)}
+.tx .t{font-weight:500;font-size:15px}
+.tx .m{font-size:12.5px;color:var(--muted);margin-top:2px}
+.tx .amt{text-align:right;font-family:'Noto Serif Thai',serif;font-size:17px;font-weight:500}
+.tx.in .amt{color:var(--green-d)} .tx.out .amt{color:var(--rose-d)}
+.tx .bal{font-size:12px;color:var(--muted);margin-top:2px;text-align:right}
+.tx .side{text-align:right}
+.del{border:none;background:transparent;color:#d9c4c0;font-size:12px;margin-top:2px;padding:2px 0}
+.del:hover{color:var(--rose-d)}
+.empty{text-align:center;color:var(--muted);padding:26px 10px 30px;font-size:14px}
+.empty .big{width:110px;height:92px;margin:0 auto 6px}
+.empty .big svg{width:100%;height:100%}
+.more{margin:16px auto 0;display:block}
+
+.setup{max-width:660px;margin:0 auto}
+.setup code{background:#fdeedd;padding:1px 7px;border-radius:6px;font-size:12.5px;color:var(--ink);word-break:break-all}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:.3s;z-index:9;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--rose-d)}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:6px}
+@keyframes s{to{transform:rotate(360deg)}}
+.notice{background:var(--blush);border:1px solid #ffc4d2;color:var(--rose-d);border-radius:16px;padding:14px 18px;font-size:13.5px;line-height:1.7;margin-bottom:18px}
+
+@media(max-width:860px){
+  .summary{grid-template-columns:1fr 1fr}
+  .stat.balance{grid-column:1/-1}
+  .stat.balance .num{font-size:34px}
+  .mascot-box{width:104px;height:87px}
+  .grid{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.mascot-box svg{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo" id="logo"></div>
+      <div>
+        <small>Allowance Ledger</small>
+        <h1 id="title">สมุดบัญชีเงินฝาก</h1>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <span class="pill" id="statusPill">กำลังเชื่อมต่อ…</span>
+      <button class="btn sm hidden" id="signoutBtn">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <!-- CONFIG MISSING -->
+  <section id="missingView" class="card setup hidden">
+    <h2>ยังเชื่อมต่อไม่ได้</h2>
+    <p id="missingMsg" style="color:var(--muted);font-size:14px;line-height:1.8;margin:0"></p>
+  </section>
+
+  <!-- SIGN IN -->
+  <section id="signinView" class="card setup hidden" style="text-align:center">
+    <div style="width:130px;height:108px;margin:0 auto 6px" id="signinMascot"></div>
+    <h2>เข้าสู่ระบบด้วย Google</h2>
+    <p style="color:var(--muted);font-size:14px;margin:0 0 18px">ใช้บัญชี Google ที่ได้รับอนุญาตเท่านั้น</p>
+    <button class="btn gold" id="signinBtn">เข้าสู่ระบบ</button>
+  </section>
+
+  <!-- MAIN -->
+  <main id="mainView" class="hidden">
+    <div class="notice hidden" id="denied"></div>
+    <div class="summary">
+      <div class="card stat balance" id="balCard">
+        <div class="bal-text">
+          <div class="label">เงินคงเหลือ</div>
+          <div class="num"><span id="sBal">0.00</span><small>บาท</small></div>
+          <div class="bar"><i id="bar"></i></div>
+          <div class="hint" id="barHint"></div>
+        </div>
+        <div class="mascot-box" id="mascotBox"></div>
+      </div>
+      <div class="card stat in"><div class="label">ให้ไว้ทั้งหมด</div><div class="num"><span id="sIn">0.00</span></div></div>
+      <div class="card stat out"><div class="label">ใช้ไปแล้ว</div><div class="num"><span id="sOut">0.00</span></div><div class="hint" id="monthOut"></div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>เพิ่มรายการ</h2>
+        <div class="seg">
+          <button type="button" class="out active" data-type="ใช้จ่าย" id="segOut">− จ่ายไป</button>
+          <button type="button" class="in" data-type="เติมเงิน" id="segIn">+ ให้เงินเพิ่ม</button>
+        </div>
+        <div class="quick" id="quick"></div>
+        <form id="form" autocomplete="off">
+          <div class="field"><label id="lblDesc">จ่ายค่าอะไร / ซื้ออะไร</label><input id="fDesc" list="descList" placeholder="เช่น ค่าไฟ, ของใช้ในบ้าน" required><datalist id="descList"></datalist></div>
+          <div class="row2">
+            <div class="field"><label>จำนวนเงิน (บาท)</label><input id="fAmt" class="amount-input" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="0.00" required></div>
+            <div class="field"><label>วันที่</label><input id="fDate" type="date" required></div>
+          </div>
+          <div class="field"><label>หมายเหตุ (ไม่บังคับ)</label><input id="fNote" placeholder="เช่น ฝากซื้อที่ร้าน…"></div>
+          <button class="btn gold" style="width:100%;padding:13px" id="addBtn">บันทึกรายจ่าย</button>
+        </form>
+      </div>
+
+      <div class="card" id="histCard">
+        <button class="hist-head" id="histHead" type="button" aria-expanded="true" aria-controls="histBody">
+          <h2>ประวัติรายการ <span class="count" id="histCount">0</span></h2>
+          <span class="chev" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        </button>
+        <div class="hist-peek" id="histPeek"></div>
+        <div class="hist-body" id="histBody">
+          <div class="tools">
+            <input id="q" placeholder="ค้นหารายการ…">
+            <div class="chips">
+              <button class="chip active" data-f="all">ทั้งหมด</button>
+              <button class="chip" data-f="ใช้จ่าย">จ่ายไป</button>
+              <button class="chip" data-f="เติมเงิน">ให้เพิ่ม</button>
+            </div>
+          </div>
+          <div class="list" id="list"></div>
+          <button class="btn sm more hidden" id="moreBtn" type="button"></button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,persistentMultipleTabManager,getFirestore,collection,addDoc,deleteDoc,doc,onSnapshot,query,orderBy,serverTimestamp} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+/* ค่า FIREBASE_CONFIG และ OWNER_NAME อยู่ในไฟล์ config.js (โฟลเดอร์เดียวกับหน้านี้) */
+let FIREBASE_CONFIG=null, OWNER_NAME='', cfgError='';
+try{
+  const m=await import('./config.js');
+  FIREBASE_CONFIG=m.FIREBASE_CONFIG;
+  OWNER_NAME=m.OWNER_NAME||'';
+}catch(e){cfgError=String(e?.message||e)}
+
+const $=s=>document.querySelector(s);
+const IN='เติมเงิน', OUT='ใช้จ่าย', COL='ledger';
+const LS_OPEN='allowanceLedgerAuto.histOpen';
+let txs=[], curType=OUT, filter='all', unsub=null, auth=null, db=null, store=null, shown=8, lastMood='';
+
+const fmt=n=>new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const fmtDate=s=>{const d=new Date(s+'T00:00:00');return isNaN(d)?s:d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})};
+const monthLabel=k=>{const d=new Date(k+'-01T00:00:00');return isNaN(d)?k:d.toLocaleDateString('th-TH',{month:'long',year:'numeric'})};
+function toast(msg,err){const t=$('#toast');t.textContent=msg;t.className='toast show'+(err?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='toast',3200)}
+function show(v){['missingView','signinView','mainView'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==v))}
+function pill(txt,cls){const p=$('#statusPill');p.textContent=txt;p.className='pill'+(cls?' '+cls:'')}
+function applyName(){$('#title').textContent='สมุดบัญชีเงินฝาก'+(OWNER_NAME?' · '+OWNER_NAME:'');document.title='บัญชี '+(OWNER_NAME||'เงินฝาก')}
+
+/* ---------- Mascot: หมูออมสินตัวน้อย (วาดเอง) เปลี่ยนอารมณ์ตามเงินคงเหลือ ---------- */
+function mascot(mood){
+  const eye=mood==='happy'
+    ?'<path d="M67 48 q5 -6 10 0" stroke="#5a3a45" stroke-width="2.6" fill="none" stroke-linecap="round"/>'
+    :'<circle cx="72" cy="48" r="3.4" fill="#5a3a45"/><circle cx="73.2" cy="46.8" r="1.1" fill="#fff"/>';
+  const brow=(mood==='worry'||mood==='sad')?'<path d="M65 40 l11 -3" stroke="#5a3a45" stroke-width="2.2" stroke-linecap="round"/>':'';
+  const tear=mood==='sad'?'<path d="M74 54 q-3.5 5.5 0 9 q3.5 -3.5 0 -9z" fill="#8fcdf5"/>':'';
+  const mouth={happy:'M81 71 q6 6 12 0',ok:'M81 72 h12',worry:'M81 74 q6 -4 12 0',sad:'M81 75 q6 -6 12 0'}[mood]||'M81 72 h12';
+  const spark=mood==='happy'?'<path d="M104 20 l2.2 5.5 5.5 2.2 -5.5 2.2 -2.2 5.5 -2.2 -5.5 -5.5 -2.2 5.5 -2.2z" fill="#ffc83d"/><path d="M12 30 l1.6 4 4 1.6 -4 1.6 -1.6 4 -1.6 -4 -4 -1.6 4 -1.6z" fill="#ff9fc0"/>':'';
+  return `<svg viewBox="0 0 120 100" role="img" aria-label="หมูออมสิน">
+    <ellipse cx="60" cy="94" rx="36" ry="4.5" fill="#e8a55c" opacity=".28"/>
+    <rect x="34" y="80" width="11" height="13" rx="5" fill="#ffa6bd"/><rect x="68" y="80" width="11" height="13" rx="5" fill="#ffa6bd"/>
+    <path d="M48 31 L45 15 L62 28 Z" fill="#ffa6bd"/><path d="M60 31 L65 15 L78 31 Z" fill="#ffa6bd"/>
+    <path d="M21 56 q-11 -3 -9 -11 q2 -5 8 -2" stroke="#ff8fab" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+    <ellipse cx="58" cy="58" rx="38" ry="29" fill="#ffc6d4" stroke="#ff9db6" stroke-width="1.6"/>
+    <ellipse cx="46" cy="48" rx="12" ry="6" fill="#fff" opacity=".3" transform="rotate(-18 46 48)"/>
+    <rect x="46" y="31" width="22" height="4.2" rx="2.1" fill="#e0507a"/>
+    <circle cx="57" cy="13" r="9.5" fill="#ffd966" stroke="#e0a020" stroke-width="1.6"/>
+    <text x="57" y="17.2" font-size="11.5" text-anchor="middle" fill="#9a5f00" font-family="sans-serif" font-weight="700">฿</text>
+    <circle cx="77" cy="62" r="5" fill="#ff7d98" opacity=".42"/>
+    <ellipse cx="92" cy="58" rx="9.5" ry="8.5" fill="#ffb3c6" stroke="#ff8fab" stroke-width="1.3"/>
+    <circle cx="90" cy="57" r="1.6" fill="#c2506c"/><circle cx="95.2" cy="57" r="1.6" fill="#c2506c"/>
+    ${eye}${brow}${tear}
+    <path d="${mouth}" stroke="#c2506c" stroke-width="2.2" fill="none" stroke-linecap="round"/>
+    ${spark}
+  </svg>`;
+}
+$('#logo').innerHTML=mascot('happy');
+$('#signinMascot').innerHTML=mascot('happy');
+
+/* ---------- ไอคอนตามหมวด (เดาจากคำในชื่อรายการ) ---------- */
+const CATS=[
+  ['⛽',/น้ำมัน|แก๊ส|ก๊าซ/],
+  ['⚡',/ค่าไฟ|ไฟฟ้า|ไฟบ้าน/],
+  ['💧',/น้ำประปา|ค่าน้ำ|น้ำดื่ม|ประปา/],
+  ['🍬',/ลูกอม|ลูกกวาด|ท็อฟฟี่|ช็อกโกแลต/],
+  ['🍪',/ขนม|เค้ก|คุกกี้|ไอศกรีม|ไอติม/],
+  ['🍚',/ข้าว/],
+  ['🍜',/อาหาร|กิน|ก๋วย|กาแฟ|ชา|เครื่องดื่ม|ร้านอาหาร/],
+  ['🛒',/ตลาด|ซุปเปอร์|ซูเปอร์|ของใช้|เซเว่น|7-?11|โลตัส|บิ๊กซี|ซื้อของ|ผัก|ผลไม้|เนื้อ|ไข่/],
+  ['💊',/ค่ายา|หมอ|โรงพยาบาล|รพ\.|คลินิก|ฟัน|วิตามิน|ซื้อยา/],
+  ['🚗',/รถ|แท็กซี่|เดินทาง|bts|mrt|วิน|grab|ทางด่วน|ค่าโดยสาร/i],
+  ['📱',/เน็ต|โทรศัพท์|มือถือ|wifi|ซิม|เติมเงิน|ais|true|dtac/i],
+  ['🏠',/ค่าเช่า|ค่าห้อง|ซ่อม|ช่าง|ค่าส่วนกลาง/],
+  ['🧴',/สบู่|แชมพู|ผงซักฟอก|ทิชชู่|น้ำยา|ยาสีฟัน/],
+  ['👕',/เสื้อ|กางเกง|รองเท้า|เสื้อผ้า/],
+  ['🎁',/ของขวัญ|ทำบุญ|บริจาค|งานบุญ/]
+];
+function iconFor(t){
+  if(t.type===IN)return '💰';
+  for(const [e,re] of CATS)if(re.test(t.desc))return e;
+  return '🧾';
+}
+const QUICK_OUT=[['💧','ค่าน้ำ'],['🍚','ค่าข้าว'],['🍬','ค่าลูกอม'],['🍪','ค่าขนม'],['🚗','ค่ารถ']];
+function renderQuick(){
+  $('#quick').innerHTML=curType===OUT
+    ?QUICK_OUT.map(([e,n])=>`<button type="button" class="qchip" data-v="${esc(n)}">${e} ${esc(n)}</button>`).join('')
+    :'';
+}
+$('#quick').onclick=e=>{const b=e.target.closest('.qchip');if(!b)return;$('#fDesc').value=b.dataset.v;$('#fAmt').focus()};
+
+/* ---------- Firestore store ---------- */
+function makeStore(){
+  return {
+    subscribe(cb,onErr){
+      return onSnapshot(query(collection(db,COL),orderBy('date')),snap=>{
+        cb(snap.docs.map(d=>{const v=d.data();return{id:d.id,date:v.date||'',type:v.type===IN?IN:OUT,desc:v.desc||'',amount:Number(v.amount)||0,note:v.note||'',ts:v.createdAt?.toMillis?.()??Date.now()}}));
+      },onErr);
+    },
+    add(t){return addDoc(collection(db,COL),{...t,createdAt:serverTimestamp(),by:auth.currentUser?.email||''})},
+    remove(t){return deleteDoc(doc(db,COL,t.id))}
+  };
+}
+
+/* ---------- Render ---------- */
+function setMood(mood){if(mood!==lastMood){lastMood=mood;$('#mascotBox').innerHTML=mascot(mood)}}
+function render(){
+  const sorted=[...txs].sort((a,b)=>a.date.localeCompare(b.date)||a.ts-b.ts);
+  let bal=0,inn=0,out=0;const months={};
+  sorted.forEach(t=>{
+    if(t.type===IN){bal+=t.amount;inn+=t.amount}else{bal-=t.amount;out+=t.amount}
+    t.bal=bal;
+    const k=t.date.slice(0,7);(months[k]??={in:0,out:0})[t.type===IN?'in':'out']+=t.amount;
+  });
+  $('#sBal').textContent=fmt(bal);$('#sIn').textContent=fmt(inn);$('#sOut').textContent=fmt(out);
+  $('#balCard').classList.toggle('neg',bal<0);
+  const pct=inn>0?Math.max(0,Math.min(100,(bal/inn)*100)):0;
+  $('#bar').style.width=pct+'%';
+  let mood,msg;
+  if(inn===0){mood='ok';msg='ยังไม่มีเงินฝาก เริ่มจากกด “+ ให้เงินเพิ่ม” ได้เลย'}
+  else if(bal<0){mood='sad';msg='ยอดติดลบ ใช้เกินเงินที่ให้ไว้แล้ว'}
+  else if(pct<20){mood='worry';msg='เงินใกล้หมดแล้ว เหลือ '+pct.toFixed(0)+'% ของที่ให้ไว้'}
+  else if(pct<50){mood='ok';msg='เหลือ '+pct.toFixed(0)+'% ของเงินที่ให้ไว้'}
+  else{mood='happy';msg='เงินยังเหลือสบายๆ '+pct.toFixed(0)+'% ของที่ให้ไว้'}
+  setMood(mood);$('#barHint').textContent=msg;
+  const nowKey=todayStr().slice(0,7);
+  $('#monthOut').textContent='เดือนนี้ใช้ไป '+fmt(months[nowKey]?.out||0)+' บาท';
+
+  // history
+  $('#histCount').textContent=txs.length;
+  const latest=[...sorted].reverse()[0];
+  $('#histPeek').textContent=latest?`ล่าสุด: ${iconFor(latest)} ${latest.desc} · ${latest.type===IN?'+':'−'}${fmt(latest.amount)}`:'ยังไม่มีรายการ';
+  const q=$('#q').value.trim().toLowerCase();
+  const rows=sorted.filter(t=>(filter==='all'||t.type===filter)&&(!q||(t.desc+' '+t.note).toLowerCase().includes(q))).reverse();
+  const vis=rows.slice(0,shown);
+  let html='',lastKey='';
+  vis.forEach(t=>{
+    const k=t.date.slice(0,7);
+    if(k!==lastKey){lastKey=k;const m=months[k]||{in:0,out:0};
+      html+=`<div class="month"><span>${esc(monthLabel(k))}</span><span>จ่าย ${fmt(m.out)}${m.in?' · ให้เพิ่ม '+fmt(m.in):''}</span></div>`}
+    html+=`<div class="tx ${t.type===IN?'in':'out'}">
+      <div class="ico">${iconFor(t)}</div>
+      <div><div class="t">${esc(t.desc)}</div><div class="m">${fmtDate(t.date)}${t.note?' · '+esc(t.note):''}</div></div>
+      <div class="side"><div class="amt">${t.type===IN?'+':'−'}${fmt(t.amount)}</div><div class="bal">คงเหลือ ${fmt(t.bal)}</div><button class="del" data-id="${esc(t.id)}">ลบ</button></div>
+    </div>`;
+  });
+  $('#list').innerHTML=html||`<div class="empty"><div class="big">${mascot('ok')}</div>ยังไม่มีรายการ</div>`;
+  const left=rows.length-vis.length;
+  const mb=$('#moreBtn');mb.classList.toggle('hidden',left<=0);
+  if(left>0)mb.textContent='แสดงเพิ่ม (เหลืออีก '+left+' รายการ)';
+
+  const names=[...new Set(txs.filter(t=>t.type===curType).map(t=>t.desc))].slice(0,60);
+  $('#descList').innerHTML=names.map(n=>`<option value="${esc(n)}">`).join('');
+}
+
+/* ---------- Collapsible history ---------- */
+function setOpen(open,save){
+  $('#histCard').classList.toggle('collapsed',!open);
+  $('#histHead').setAttribute('aria-expanded',String(open));
+  if(save){try{localStorage.setItem(LS_OPEN,open?'1':'0')}catch{}}
+}
+$('#histHead').onclick=()=>setOpen($('#histCard').classList.contains('collapsed'),true);
+(function initOpen(){
+  let v=null;try{v=localStorage.getItem(LS_OPEN)}catch{}
+  setOpen(v===null?window.innerWidth>=860:v==='1',false);
+})();
+$('#moreBtn').onclick=()=>{shown+=10;render()};
+
+/* ---------- Events ---------- */
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+  curType=b.dataset.type;
+  document.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('active',x===b));
+  $('#lblDesc').textContent=curType===OUT?'จ่ายค่าอะไร / ซื้ออะไร':'เงินที่ให้เพิ่ม (เหตุผล/ที่มา)';
+  $('#fDesc').placeholder=curType===OUT?'เช่น ค่าไฟ, ของใช้ในบ้าน':'เช่น โอนเพิ่มเดือนพฤศจิกายน';
+  $('#addBtn').textContent=curType===OUT?'บันทึกรายจ่าย':'บันทึกเงินที่ให้เพิ่ม';
+  renderQuick();render();
+});
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+  filter=c.dataset.f;shown=8;document.querySelectorAll('.chip').forEach(x=>x.classList.toggle('active',x===c));render()});
+$('#q').oninput=()=>{shown=8;render()};
+
+function errMsg(err){
+  if(err?.code==='permission-denied')return 'บัญชีนี้ไม่มีสิทธิ์ทำรายการนี้';
+  return 'ผิดพลาด: '+(err?.message||err);
+}
+$('#form').onsubmit=async e=>{
+  e.preventDefault();
+  const amt=parseFloat($('#fAmt').value);
+  if(!(amt>0)){toast('กรอกจำนวนเงินให้ถูกต้อง',true);return}
+  const btn=$('#addBtn'),old=btn.textContent;
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>กำลังบันทึก';
+  try{
+    await store.add({date:$('#fDate').value,type:curType,desc:$('#fDesc').value.trim(),amount:Math.round(amt*100)/100,note:$('#fNote').value.trim()});
+    $('#fDesc').value='';$('#fAmt').value='';$('#fNote').value='';
+    toast('บันทึกแล้ว ✓');
+  }catch(err){toast(errMsg(err),true)}
+  finally{btn.disabled=false;btn.textContent=old}
+};
+$('#list').onclick=async e=>{
+  const b=e.target.closest('.del');if(!b)return;
+  const t=txs.find(x=>x.id===b.dataset.id);if(!t)return;
+  if(!confirm('ลบรายการ “'+t.desc+'” จำนวน '+fmt(t.amount)+' บาท ?'))return;
+  try{await store.remove(t);toast('ลบแล้ว')}catch(err){toast(errMsg(err),true)}
+};
+$('#signoutBtn').onclick=()=>signOut(auth);
+$('#signinBtn').onclick=async()=>{
+  const b=$('#signinBtn');b.disabled=true;
+  try{await signInWithPopup(auth,new GoogleAuthProvider())}
+  catch(e){
+    const m={
+      'auth/unauthorized-domain':'โดเมนนี้ยังไม่ได้เพิ่มใน Authorized domains ของ Firebase Authentication',
+      'auth/popup-blocked':'เบราว์เซอร์บล็อกหน้าต่างล็อกอิน ให้อนุญาต popup',
+      'auth/operation-not-allowed':'ยังไม่ได้เปิดการล็อกอินด้วย Google ใน Authentication'
+    }[e.code];
+    if(e.code!=='auth/popup-closed-by-user'&&e.code!=='auth/cancelled-popup-request')toast(m||('เข้าสู่ระบบไม่สำเร็จ: '+(e.message||e)),true);
+  }finally{b.disabled=false}
+};
+
+/* ---------- Start ---------- */
+function enter(){
+  show('mainView');$('#fDate').value=todayStr();renderQuick();
+  $('#denied').classList.add('hidden');
+  if(unsub)unsub();
+  unsub=store.subscribe(list=>{txs=list;$('#denied').classList.add('hidden');render()},err=>{
+    txs=[];render();
+    const d=$('#denied');d.classList.remove('hidden');
+    d.textContent=err?.code==='permission-denied'
+      ?'บัญชีนี้ไม่มีสิทธิ์เข้าถึงข้อมูล ลองออกจากระบบแล้วเข้าด้วยอีเมลที่ได้รับอนุญาต'
+      :'โหลดข้อมูลไม่สำเร็จ: '+(err?.message||err);
+    pill('เชื่อมต่อไม่สำเร็จ','bad');
+  });
+}
+function configured(){
+  const c=FIREBASE_CONFIG;
+  return !!(c&&c.apiKey&&c.projectId&&c.appId)&&![c.apiKey,c.projectId,c.appId].some(v=>/PASTE/i.test(v));
+}
+function start(){
+  applyName();
+  $('#fDate').value=todayStr();
+  if(!configured()){
+    pill('ยังไม่ได้ตั้งค่า','bad');
+    $('#missingMsg').innerHTML=cfgError
+      ?'อ่านไฟล์ <code>config.js</code> ไม่ได้ กรุณาวางไฟล์ไว้โฟลเดอร์เดียวกับหน้านี้ และเปิดผ่าน <code>http://localhost</code> หรือเว็บโฮสต์ (เปิดไฟล์ตรงๆ แบบ file:// โหลดโมดูลไม่ได้)<br><span style="font-size:12px">'+esc(cfgError)+'</span>'
+      :'ยังไม่ได้ใส่ค่าใน <code>config.js</code> เปิดไฟล์นั้นแล้วแทนที่ค่า <code>PASTE_...</code> ด้วย firebaseConfig ของคุณ บันทึกแล้วรีเฟรชหน้านี้';
+    show('missingView');return;
+  }
+  try{
+    const app=initializeApp(FIREBASE_CONFIG);
+    auth=getAuth(app);
+    try{db=initializeFirestore(app,{localCache:persistentLocalCache({tabManager:persistentMultipleTabManager()})})}
+    catch{db=getFirestore(app)}
+    store=makeStore();
+  }catch(e){
+    pill('เริ่มต้น Firebase ไม่สำเร็จ','bad');
+    $('#missingMsg').textContent='เริ่มต้น Firebase ไม่สำเร็จ: '+(e?.message||e);
+    show('missingView');return;
+  }
+  onAuthStateChanged(auth,u=>{
+    $('#signoutBtn').classList.toggle('hidden',!u);
+    if(u){pill(u.email||'เข้าสู่ระบบแล้ว','on');enter()}
+    else{if(unsub){unsub();unsub=null}txs=[];pill('ยังไม่ได้เข้าสู่ระบบ');show('signinView')}
+  });
+}
+start();
+</script>
+</body>
+</html>
