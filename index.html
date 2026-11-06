@@ -79,6 +79,11 @@ input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 4px rgba(240,
 .field{margin-bottom:14px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .amount-input{font-family:'Noto Serif Thai',serif;font-size:22px}
+.row2{align-items:end}
+#fAmt,#fDate{height:54px;line-height:normal}
+#fDate{font-size:16px;min-width:0;-webkit-appearance:none;appearance:none}
+.who{font-size:11.5px;color:#a79aa1;margin-top:3px;line-height:1.5}
+.who b{font-weight:500;color:#7c8fd8}
 
 /* collapsible history */
 .hist-head{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:none;border:none;padding:0;margin:0 0 16px;text-align:left;color:inherit}
@@ -253,6 +258,7 @@ const fmt=n=>new Intl.NumberFormat('th-TH',{minimumFractionDigits:2,maximumFract
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const todayStr=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const fmtDate=s=>{const d=new Date(s+'T00:00:00');return isNaN(d)?s:d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})};
+const whoName=(name,email)=>String(name||'').trim().split(/\s+/)[0]||String(email||'').split('@')[0]||'';
 const monthLabel=k=>{const d=new Date(k+'-01T00:00:00');return isNaN(d)?k:d.toLocaleDateString('th-TH',{month:'long',year:'numeric'})};
 function toast(msg,err){const t=$('#toast');t.textContent=msg;t.className='toast show'+(err?' err':'');clearTimeout(toast.t);toast.t=setTimeout(()=>t.className='toast',3200)}
 function show(v){['missingView','signinView','mainView'].forEach(x=>$('#'+x).classList.toggle('hidden',x!==v))}
@@ -293,6 +299,7 @@ $('#signinMascot').innerHTML=mascot('happy');
 const CATS=[
   ['⛽',/น้ำมัน|แก๊ส|ก๊าซ/],
   ['⚡',/ค่าไฟ|ไฟฟ้า|ไฟบ้าน/],
+  ['🧃',/น้ำหวาน|น้ำอัดลม|น้ำผลไม้|น้ำปั่น/],
   ['💧',/น้ำประปา|ค่าน้ำ|น้ำดื่ม|ประปา/],
   ['🍬',/ลูกอม|ลูกกวาด|ท็อฟฟี่|ช็อกโกแลต/],
   ['🍪',/ขนม|เค้ก|คุกกี้|ไอศกรีม|ไอติม/],
@@ -312,7 +319,7 @@ function iconFor(t){
   for(const [e,re] of CATS)if(re.test(t.desc))return e;
   return '🧾';
 }
-const QUICK_OUT=[['💧','ค่าน้ำ'],['🍚','ค่าข้าว'],['🍬','ค่าลูกอม'],['🍪','ค่าขนม'],['🚗','ค่ารถ']];
+const QUICK_OUT=[['🧃','ค่าน้ำหวาน'],['🍚','ค่าข้าว'],['🍬','ค่าลูกอม'],['🍪','ค่าขนม'],['🚗','ค่ารถ']];
 function renderQuick(){
   $('#quick').innerHTML=curType===OUT
     ?QUICK_OUT.map(([e,n])=>`<button type="button" class="qchip" data-v="${esc(n)}">${e} ${esc(n)}</button>`).join('')
@@ -325,13 +332,21 @@ function makeStore(){
   return {
     subscribe(cb,onErr){
       return onSnapshot(query(collection(db,COL),orderBy('date')),snap=>{
-        cb(snap.docs.map(d=>{const v=d.data();return{id:d.id,date:v.date||'',type:v.type===IN?IN:OUT,desc:v.desc||'',amount:Number(v.amount)||0,note:v.note||'',ts:v.createdAt?.toMillis?.()??Date.now(),edited:!!v.updatedAt}}));
+        cb(snap.docs.map(d=>{const v=d.data();return{id:d.id,date:v.date||'',type:v.type===IN?IN:OUT,desc:v.desc||'',amount:Number(v.amount)||0,note:v.note||'',ts:v.createdAt?.toMillis?.()??Date.now(),edited:!!v.updatedAt,by:v.by||'',byName:v.byName||'',updatedBy:v.updatedBy||'',updatedByName:v.updatedByName||''}}));
       },onErr);
     },
-    add(t){return addDoc(collection(db,COL),{...t,createdAt:serverTimestamp(),by:auth.currentUser?.email||''})},
-    update(id,t){return updateDoc(doc(db,COL,id),{...t,updatedAt:serverTimestamp(),updatedBy:auth.currentUser?.email||''})},
+    add(t){const u=auth.currentUser;return addDoc(collection(db,COL),{...t,createdAt:serverTimestamp(),by:u?.email||'',byName:u?.displayName||''})},
+    update(id,t){const u=auth.currentUser;return updateDoc(doc(db,COL,id),{...t,updatedAt:serverTimestamp(),updatedBy:u?.email||'',updatedByName:u?.displayName||''})},
     remove(t){return deleteDoc(doc(db,COL,t.id))}
   };
+}
+
+function whoLine(t){
+  const a=whoName(t.byName,t.by),b=whoName(t.updatedByName,t.updatedBy);
+  const parts=[];
+  if(a)parts.push('บันทึกโดย <b>'+esc(a)+'</b>');
+  if(t.edited)parts.push('แก้ไขโดย <b>'+esc(b||'ไม่ทราบ')+'</b>');
+  return parts.length?'<div class="who">'+parts.join(' · ')+'</div>':'';
 }
 
 /* ---------- Render ---------- */
@@ -372,7 +387,7 @@ function render(){
       html+=`<div class="month"><span>${esc(monthLabel(k))}</span><span>จ่าย ${fmt(m.out)}${m.in?' · ให้เพิ่ม '+fmt(m.in):''}</span></div>`}
     html+=`<div class="tx ${t.type===IN?'in':'out'}${t.id===editingId?' editing-row':''}">
       <div class="ico">${iconFor(t)}</div>
-      <div><div class="t">${esc(t.desc)}</div><div class="m">${fmtDate(t.date)}${t.note?' · '+esc(t.note):''}${t.edited?' · แก้ไขแล้ว':''}</div></div>
+      <div><div class="t">${esc(t.desc)}</div><div class="m">${fmtDate(t.date)}${t.note?' · '+esc(t.note):''}</div>${whoLine(t)}</div>
       <div class="side"><div class="amt">${t.type===IN?'+':'−'}${fmt(t.amount)}</div><div class="bal">คงเหลือ ${fmt(t.bal)}</div><div class="acts"><button class="edit" data-id="${esc(t.id)}">แก้ไข</button><button class="del" data-id="${esc(t.id)}">ลบ</button></div></div>
     </div>`;
   });
